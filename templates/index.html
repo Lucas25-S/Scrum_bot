@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Scrum Master</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">Scrum Master IA</div>
+        <div class="chat-box" id="chat-box">
+            <div class="message bot-message">Olá! Sou um chatbot para Métodos Ágeis. Por favor, escolha uma opção:
+                <br>1. Chatbot Scrum Master
+                <br>2. Gerador de User Stories
+                <br>3. Priorizador de Backlog
+                <br>4. Assistente de Sprint Planning
+                <br>5. Detector de Impedimentos
+                <br>6. Facilitador de Retrospectivas
+                <br>7. Simulação de Cliente Virtual (PO)
+                <br>8. Gerador de Kanban
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Digite sua mensagem..." onkeypress="if(event.key === 'Enter') enviarMensagem()">
+            <button onclick="enviarMensagem()">Enviar</button>
+        </div>
+        <div class="chat-header">
+        Scrum Master IA
+        <button class="save-button" onclick="salvarConversa()">Salvar Conversa</button>
+</div>
+    </div>
+
+    <script>
+        // Função para adicionar uma mensagem à tela do chat
+        function adicionarMensagem(texto, remetente) {
+            const chatBox = document.getElementById('chat-box');
+            const novaMensagem = document.createElement('div');
+            novaMensagem.classList.add('message');
+            novaMensagem.classList.add(remetente === 'user' ? 'user-message' : 'bot-message');
+            novaMensagem.innerHTML = texto.replace(/\n/g, '<br>');
+            chatBox.appendChild(novaMensagem);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Função para enviar a mensagem do usuário ao backend
+        async function enviarMensagem() {
+            const userInput = document.getElementById('user-input');
+            const mensagem = userInput.value.trim();
+            if (mensagem === '') return;
+
+            adicionarMensagem(mensagem, 'user');
+            userInput.value = '';
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `mensagem=${encodeURIComponent(mensagem)}`
+                });
+                
+                const data = await response.json();
+                adicionarMensagem(data.resposta, 'bot');
+            } catch (error) {
+                console.error('Erro ao comunicar com o servidor:', error);
+                adicionarMensagem('Desculpe, algo deu errado com o servidor.', 'bot');
+            }
+        }
+        function salvarConversa() {
+        window.location.href = '/save_chat';
+    }
+    </script>
+</body>
+</html>
